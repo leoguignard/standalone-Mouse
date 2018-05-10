@@ -12,8 +12,15 @@ The algorithms are presented here together with test data and they should be sta
 The folder contains also the folder
   - DATA that contains all the data necessary to test the different algorithms
 
+# Installation
+To install these python scripts with ubuntu, one can simply run the script ubuntu-install.sh as follow:
+```shell
+source ubuntu-install.sh
+```
+Your admin password will be asked since some apt packages are required (see bellow).
+
 # Pre installation
-To install all the following described libraries, the following programs have to be installed:
+To run the python scripts described, the following libraries have to be installed:
   - git, optional, the codes could be directly download from the github website (```sudo apt install git```)
   - python-dev (```sudo apt install python-dev```)
   - pip (```sudo apt install python-pip```)
@@ -29,8 +36,6 @@ To run the different scripts, it is necessary to pre-install the following libra
   - TGMMlibraries
   - IO
   - BlockMatching
-
-We recommand to install the libraries in a virtual environment (using virtual-env for example) to avoid conflicts.
 
 ## TGMMlibraries
 TGMMlibraries is a class that allows to manipulate lineage trees un python.
@@ -116,3 +121,25 @@ echo 'export PATH=$PATH:/path/to/BlockMatching/build/bin' >> ~/.bashrc
 ```
 
 or add a line to the csv configuration file for Time-registration/standalone-registration.py (the csv file is Time-registration/csv-parameter-files/standalone-registration.csv).
+
+# Installation of the scripts
+To install the scripts one can run the setup.py from each folder. For example, from this folder one can run this sequence of commands:
+```shell
+cd TGMMlibraries
+python setup.py install --user
+
+cd ../IO
+python setup.py install --user
+
+cd ../I2AE
+python setup.py install --user
+
+cd ../SVF
+python setup.py install --user
+
+cd ../Time-registration
+python setup.py install --user
+
+cd ../svf2MaMuT
+python setup.py install --user
+```
