@@ -7,10 +7,7 @@ This folder contains the scripts described in our article [...]. The algorithms 
   - I2AE/image-to-average-embryo.py that allows to register a masked image onto our average embryo.
   - svf2MaMuT/SVF2MaMuT.py that allows to rewrite an SVF binary together with its Database.csv (from the tissue-bw-prop.py algorithm) onto a MaMuT xml file.
 
-The algorithms are presented here together with test data and they should be standalone once the necessary libraries have been installed (see README.md in all specific folders).
-
-The folder contains also the folder
-  - DATA that contains all the data necessary to test the different algorithms
+The algorithms are presented here require the datasets provided [there]() to work with the example configuration files. They should be standalone once the necessary libraries have been installed (see README.md in all specific folders).
 
 # Installation
 To install these python scripts with ubuntu, one can simply run the script ubuntu-install.sh as follow:
