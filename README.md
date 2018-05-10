@@ -107,7 +107,7 @@ ccmake ..
 make -j<24> #specify the number of cores that you want to allow for the build
 ```
 
-Then this newly built binaries (found in BlockMatching/build/bin) have to be accessible from the different scripts that will be ran. To do so one can add the following command to their ~/.bashrc (~/.profile for mac users):
+Then this newly built binaries (found in BlockMatching/build/bin) have to be accessible from the different scripts that will be ran. To do so one can add the following command to their \~/.bashrc (\~/.profile for mac users):
 ```shell
 export PATH=$PATH:/path/to/BlockMatching/build/bin
 ```
