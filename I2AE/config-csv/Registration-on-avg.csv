@@ -1,0 +1,17 @@
+path_avg_TGMM,../../DATA/Average-Embryo/avg_TGMM.bin,Path to the average TGMM embryo
+path_avg_SVF,../../DATA/Average-Embryo/avg_SVF.bin,Path to the average SVF embryo
+path_ref_TGMM,../../DATA/Brachyury-embryo-data/GMEMfinalResult_frame%04d.xml,Path to the TGMM segmentation of the considered embryo
+path_avg_LM,../../DATA/Landmarks/landmarks-avg-new.pkl,Path to the average embryo landmarks
+path_ref_LM,../../DATA/Landmarks/160616_shifted_TP265_ManualAnnotations.2.0.xml,Path to the manual landmarks of the considered embryo
+match_points_folder,../../Outputs/I2AE/matching_points/,Path to the output folder the data for the non-linear deformation will be written
+folder_SVF_amira,../../Outputs/I2AE/T_amira/,Path to the folder that will contain the amira file
+t_ref,265,value of the considered time point for the considered embryo
+path_mask,../../DATA/Brachyury-embryo-data/C2-160616_TP265_TxH2B_ManualLabel_DS.tif,Path to the masked image
+label,250,Label of the mask in the masked image
+bary,1227.051376,position of the barycenter of the considered embryo at the considered time point
+,1269.16905,
+,1480.879147,
+transpose_mask,1,any value but 0 if the mask image were rotated of 90 degres right (if the line is skipped then the value is assumed to be 0)
+DS_mask,4,voxel size ratio of the mask image to the x/y original voxel size
+,4,
+,5,

@@ -1,0 +1,74 @@
+
+\chapter{Registration procedure}
+
+\section{\texttt{BAL\_PyramidalBlockMatching}}
+
+\texttt{BAL\_PyramidalBlockMatching()}\footnote{\texttt{bal-blockmatching.c}} 
+manages the hierarchical/pyramidal registration loop.
+
+As input, it has the two images, $I_{ref}$ and $I_{flo}$, and two
+transformations, $T_{left}$ and $T_{init}$. The registration consists
+in computing $T_{res}$ such that $I_{flo} \circ T_{left} \circ
+T_{res}$ can be superimposed onto $I_{ref}$. The computation of
+$T_{res}$ is iterative and $T_{init}$ is the initialization of $T_{res}$
+
+
+\subsection{Initialization}
+\label{sec:devel:doc:trsfs:initialization}
+The computation of
+$T_{res}$ is iterative, its initial value, say $T$, depends on both
+$T_{left}$ and $T_{init}$.
+\begin{itemize}
+\item if $T_{init}$ is given, $T = T_{init}$
+\item else 
+\begin{itemize}
+\item if $T_{left}$ is given, $T = \mathbf{Id}$
+\item $T$ is the translation that superimposes the
+centers of the fields of view of the two images $I_{ref}$ and
+$I_{flo}$ (computed by \texttt{BAL\_Compute\-ImageToImageTransformation()}\footnote{\texttt{bal-transformation-tools.c}}).
+\end{itemize}
+\end{itemize}
+
+
+
+\subsection{Iterations over pyramid levels}
+
+At each pyramid level $\ell$, images ${}^{(\ell)}I$ are computed with
+the resampling transformation $T_{(\ell)} = T_{I \leftarrow
+  {}^{(\ell)}I}$. This transformation is computed by
+\texttt{BAL\_Compute\-ImageToImageTransformation()}\footnote{\texttt{bal-transformation-tools.c}}
+(see also section \ref{sec:frame:resolution}).
+
+A subsampled version of the reference image is computed by
+${}^{(\ell)}I_{ref} = I_{ref} \circ T_{(\ell)}$. 
+Let $T$ be the current estimation of the transformation, thus for the
+level $\ell$, we will compute (with \texttt{BAL\_BlockMatching()}) a transformation with $T \circ
+T_{(\ell)}$ as initial estimate. Of course, the returned result will
+be composed by $T_{(\ell)}^{(-1)}$ afterwards.
+
+Parameters for \texttt{BAL\_BlockMatching()} are then the subsampled
+reference image ${}^{(\ell)}I_{ref} = I_{ref} \circ T_{(\ell)}$, the
+floating image $I_{flo}$, the left handed transformation $T_{left}$
+and the current estimate of the transformation $T \circ
+T_{(\ell)}$ that allows to superimpose $I_{flo}$ onto
+${}^{(\ell)}I_{ref}$, $I_{flo}$ being resampled by  
+$I_{flo} \circ T_{left} \circ T \circ T_{(\ell)}$.
+
+\section{\texttt{BAL\_BlockMatching}}
+
+\texttt{BAL\_BlockMatching}\footnote{\texttt{bal-blockmatching.c}}
+performs the registration for two given images $I_{ref}$ (note that
+$I_{ref}$ can be a subsampled version of the original reference image)
+and $I_{flo}$ (note that $I_{flo}$ is not subsampled, even if
+$I_{ref}$ is), given the two transformations $T_{left}$ and $T^{(0)}$ 
+which is the initial value for the transformation.
+
+At each iteration $i$,
+\begin{itemize}
+\item resample $I_{flo}$ in the same geometry than $I_{ref}$, i.e. compute $I_{flo}^{(i)} = I_{flo} \circ T_{left} \circ T^{(i)}$
+\item compute the incremental transformation from $I_{ref}$ to $I_{flo}^{(i)}$,
+  i.e. $\delta T^{(i)} = T_{ I_{flo}^{(i)} \leftarrow I_{ref}}$
+\item update the transformation $T^{(i+1)} = T^{(i)} \circ \delta T^{(i)}$
+\end{itemize}
+
+

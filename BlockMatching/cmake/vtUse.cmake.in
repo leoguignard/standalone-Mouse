@@ -1,0 +1,32 @@
+############################################################
+#
+#
+# Copyright (c) INRIA 2013
+#
+# AUTHOR:
+# Etienne Delclaux (etienne.delclaux@inria.fr)
+# From Sylvain Prigent (sylvain.prigent@inria.fr)
+# 
+######################################################################
+## 
+### Commentary: 
+## 
+######################################################################
+## 
+### Change log:
+## 
+######################################################################
+
+if(NOT VT_USE_FILE_INCLUDED)
+
+   set(VT_USE_FILE_INCLUDED 1)
+
+   include_directories(${vt_INCLUDE_DIRS})
+
+   link_directories(${vt_LIBRARY_DIRS})
+
+   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${vt_CMAKE_DIRS})
+
+   include(vtDependencies)
+   
+endif(NOT VT_USE_FILE_INCLUDED)

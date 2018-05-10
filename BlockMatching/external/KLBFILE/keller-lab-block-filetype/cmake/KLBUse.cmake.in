@@ -1,0 +1,12 @@
+
+if(NOT KLB_USE_FILE_INCLUDED)
+
+   set(KLB_USE_FILE_INCLUDED 1)
+
+   include_directories(${KLB_INCLUDE_DIRS})
+
+   link_directories(${KLB_LIBRARY_DIRS})
+
+   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${KLB_CMAKE_DIRS})
+   
+endif(NOT KLB_USE_FILE_INCLUDED)

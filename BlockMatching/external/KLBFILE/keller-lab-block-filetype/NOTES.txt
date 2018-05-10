@@ -1,0 +1,28 @@
+
+# Notes
+
+These library is a clone issued from
+```
+git clone https://bitbucket.org/fernandoamat/keller-lab-block-filetype.git
+```
+
+There are a few differences for compilation and export purposes. This concerns the files:
+```
+	src/common.h
+	src/klb_Cwrapper.h
+	CMakeLists.txt
+	src/CMakeLists.txt
+	NOTES.txt
+	cmake/KLBConfig.cmake.in
+	cmake/KLBUse.cmake.in
+```
+
+# Build
+
+1) create a `build` directory
+
+2) in this directory, run `ccmake [whatever]/keller-lab-block-filetype/`
+
+# Export
+
+When compiling the main library, set `KLB_DIR` to this `build` directory.

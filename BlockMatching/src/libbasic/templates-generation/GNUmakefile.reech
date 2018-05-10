@@ -1,0 +1,87 @@
+
+INC_REECH_TEMP = templates-reech-include
+SRC_REECH_TEMP = templates-reech-src
+
+REECH_FILES = cspline4x4.c cspline4x4.h \
+              reech4x4.c reech4x4.h \
+              reech-def.c reech-def.h 
+
+all : ${REECH_FILES}
+
+
+cspline4x4.h : ${INC_REECH_TEMP}/cspline4x4-begin.h  \
+	${INC_REECH_TEMP}/cspline4x4-middle.h \
+	${INC_REECH_TEMP}/cspline4x4-end.h
+	@echo "... creating $@ from templates"
+	@cp ${INC_REECH_TEMP}/cspline4x4-begin.h $@ 
+	@sed -e "s/TYPE/u8/g"  ${INC_REECH_TEMP}/cspline4x4-middle.h >> $@
+	@sed -e "s/TYPE/s8/g"  ${INC_REECH_TEMP}/cspline4x4-middle.h >> $@
+	@sed -e "s/TYPE/u16/g" ${INC_REECH_TEMP}/cspline4x4-middle.h >> $@
+	@sed -e "s/TYPE/s16/g" ${INC_REECH_TEMP}/cspline4x4-middle.h >> $@
+	@sed -e "s/TYPE/r32/g" ${INC_REECH_TEMP}/cspline4x4-middle.h >> $@
+	@cat ${INC_REECH_TEMP}/cspline4x4-end.h >> $@
+
+reech4x4.h : ${INC_REECH_TEMP}/reech4x4-begin.h  \
+	${INC_REECH_TEMP}/reech4x4-middle.h \
+	${INC_REECH_TEMP}/reech4x4-end.h
+	@echo "... creating $@ from templates"
+	@cp ${INC_REECH_TEMP}/reech4x4-begin.h $@ 
+	@sed -e "s/TYPE/u8/g"  ${INC_REECH_TEMP}/reech4x4-middle.h >> $@
+	@sed -e "s/TYPE/s8/g"  ${INC_REECH_TEMP}/reech4x4-middle.h >> $@
+	@sed -e "s/TYPE/u16/g" ${INC_REECH_TEMP}/reech4x4-middle.h >> $@
+	@sed -e "s/TYPE/s16/g" ${INC_REECH_TEMP}/reech4x4-middle.h >> $@
+	@sed -e "s/TYPE/r32/g" ${INC_REECH_TEMP}/reech4x4-middle.h >> $@
+	@cat ${INC_REECH_TEMP}/reech4x4-end.h >> $@
+
+reech-def.h : ${INC_REECH_TEMP}/reech-def-begin.h  \
+	${INC_REECH_TEMP}/reech-def-middle.h \
+	${INC_REECH_TEMP}/reech-def-end.h
+	@echo "... creating $@ from templates"
+	@cp ${INC_REECH_TEMP}/reech-def-begin.h $@ 
+	@sed -e "s/DEFTYPE/r32/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/u8/g"  >> $@
+	@sed -e "s/DEFTYPE/r32/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/s8/g"  >> $@
+	@sed -e "s/DEFTYPE/r32/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/u16/g" >> $@
+	@sed -e "s/DEFTYPE/r32/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/s16/g" >> $@
+	@sed -e "s/DEFTYPE/r32/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/r32/g" >> $@
+	@sed -e "s/DEFTYPE/r64/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/u8/g"  >> $@
+	@sed -e "s/DEFTYPE/r64/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/s8/g"  >> $@
+	@sed -e "s/DEFTYPE/r64/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/u16/g" >> $@
+	@sed -e "s/DEFTYPE/r64/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/s16/g" >> $@
+	@sed -e "s/DEFTYPE/r64/g"  ${INC_REECH_TEMP}/reech-def-middle.h | sed -e "s/TYPE/r32/g" >> $@
+	@cat ${INC_REECH_TEMP}/reech-def-end.h >> $@
+
+cspline4x4.c : ${SRC_REECH_TEMP}/cspline4x4-begin.c  \
+	${SRC_REECH_TEMP}/cspline4x4-middle.c
+	@echo "... creating $@ from templates"
+	@cp ${SRC_REECH_TEMP}/cspline4x4-begin.c $@ 
+	@sed -e "s/TYPE/u8/g"  -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/cspline4x4-middle.c >> $@
+	@sed -e "s/TYPE/s8/g"  -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/cspline4x4-middle.c >> $@
+	@sed -e "s/TYPE/u16/g" -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/cspline4x4-middle.c >> $@
+	@sed -e "s/TYPE/s16/g" -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/cspline4x4-middle.c >> $@
+	@sed -e "s/TYPE/r32/g" -e "s/_CONVERT_/_CONVERTR_/g" ${SRC_REECH_TEMP}/cspline4x4-middle.c >> $@
+
+reech4x4.c : ${SRC_REECH_TEMP}/reech4x4-begin.c  \
+	${SRC_REECH_TEMP}/reech4x4-middle.c
+	@echo "... creating $@ from templates"
+	@cp ${SRC_REECH_TEMP}/reech4x4-begin.c $@ 
+	@sed -e "s/TYPE/u8/g"  -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech4x4-middle.c >> $@
+	@sed -e "s/TYPE/s8/g"  -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech4x4-middle.c >> $@
+	@sed -e "s/TYPE/u16/g" -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech4x4-middle.c >> $@
+	@sed -e "s/TYPE/s16/g" -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech4x4-middle.c >> $@
+	@sed -e "s/TYPE/r32/g" -e "s/_CONVERT_/_CONVERTR_/g" ${SRC_REECH_TEMP}/reech4x4-middle.c >> $@
+
+reech-def.c : ${SRC_REECH_TEMP}/reech-def-begin.c  \
+	${SRC_REECH_TEMP}/reech-def-middle.c 
+	@echo "... creating $@ from templates"
+	@cp ${SRC_REECH_TEMP}/reech-def-begin.c $@ 
+	@sed -e "s/DEFTYPE/r32/g" -e "s/TYPE/u8/g"  -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r32/g" -e "s/TYPE/s8/g"  -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r32/g" -e "s/TYPE/u16/g" -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r32/g" -e "s/TYPE/s16/g" -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r32/g" -e "s/TYPE/r32/g" -e "s/_CONVERT_/_CONVERTR_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r64/g" -e "s/TYPE/u8/g"  -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r64/g" -e "s/TYPE/s8/g"  -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r64/g" -e "s/TYPE/u16/g" -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r64/g" -e "s/TYPE/s16/g" -e "s/_CONVERT_/_CONVERTI_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+	@sed -e "s/DEFTYPE/r64/g" -e "s/TYPE/r32/g" -e "s/_CONVERT_/_CONVERTR_/g" ${SRC_REECH_TEMP}/reech-def-middle.c >> $@
+

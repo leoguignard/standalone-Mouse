@@ -1,0 +1,4 @@
+path_to_xml,../../TGMM/TGMM_Results/GMEMtracking3D_2018_3_6_17_15_5/XML_finalResult_lht/,Path to the TGMM xmls
+path_out,../../Outputs/Propagation/,Output folder for SVF propagation
+anisotropy,6.25,Ratio of X and Y to Z (should be same as TGMM)
+path_bin_TGMM,../../Outputs/Propagation/TGMM.bin,Path to the TGMM binary output (if it already exists it will read that instead of the xmls)

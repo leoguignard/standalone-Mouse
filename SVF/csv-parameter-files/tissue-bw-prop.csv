@@ -1,0 +1,15 @@
+path_to_LT,../../Outputs/Propagation.expected/TGMM.bin,Location of TGMM.bin file from SVF
+path_to_VF,../../Outputs/Propagation.expected/SVF.bin,Location of SVF.bin file from SVF
+path_to_mask,../../DATA/MouseExample_TP89_Masks_DS.tif,Location of down-sampled image and masks
+time,89,Time point containing masks
+path_to_am,../../Outputs/Propagation/amira_with_propagation/,Output folder
+labels,250,Value of labels used to create masks
+,150,
+,50,
+downsampling,4,Degree of downsampling
+,4,
+,1,
+inverted,0,inversion of the image (sometimes necessary depending on Fiji version for example)
+ani,../../DATA/MouseExample_TP89_Masks_DS,"Anisotropy of the image data, necessary in order to correctly match the image data and the SVF results"
+path_DB,../../Outputs/Propagation/,Output folder for database
+anisotropy,6.25,

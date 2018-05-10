@@ -1,0 +1,77 @@
+\contentsline {part}{I\hspace {1em}User documentation}{3}
+\contentsline {chapter}{\numberline {1}Command Line Interfaces}{4}
+\contentsline {section}{\numberline {1.1}\texttt {blockmatching} }{4}
+\contentsline {subsection}{\numberline {1.1.1}Basic use}{4}
+\contentsline {subsection}{\numberline {1.1.2}Principle}{4}
+\contentsline {subsection}{\numberline {1.1.3}Options and parameters (general informations)}{5}
+\contentsline {subsection}{\numberline {1.1.4}Initial transformations}{5}
+\contentsline {subsection}{\numberline {1.1.5}Result transformation}{8}
+\contentsline {subsection}{\numberline {1.1.6}Some useful parameters}{8}
+\contentsline {subsubsection}{\numberline {1.1.6.1}Hierarchical registration}{8}
+\contentsline {subsubsection}{\numberline {1.1.6.2}Block definition/selection parameters}{9}
+\contentsline {subsubsection}{\numberline {1.1.6.3}Block search/pairing}{10}
+\contentsline {subsubsection}{\numberline {1.1.6.4}Transformation estimation}{11}
+\contentsline {subsubsection}{\numberline {1.1.6.5}Vector field transformations}{11}
+\contentsline {subsection}{\numberline {1.1.7}Hints}{12}
+\contentsline {subsubsection}{\numberline {1.1.7.1}How to tune parameters}{12}
+\contentsline {subsubsection}{\numberline {1.1.7.2}Hand-made hierarchical registration}{12}
+\contentsline {section}{\numberline {1.2}\texttt {blockmatching} versus \texttt {baladin} }{13}
+\contentsline {section}{\numberline {1.3}\texttt {applyTrsf} }{14}
+\contentsline {subsection}{\numberline {1.3.1}Basic use}{14}
+\contentsline {subsection}{\numberline {1.3.2}Changing image geometry}{15}
+\contentsline {section}{\numberline {1.4}\texttt {applyTrsfToPoints} }{15}
+\contentsline {section}{\numberline {1.5}\texttt {buildPyramidImage} }{15}
+\contentsline {section}{\numberline {1.6}\texttt {composeTrsf} }{15}
+\contentsline {section}{\numberline {1.7}\texttt {copyTrsf} }{16}
+\contentsline {section}{\numberline {1.8}\texttt {createGrid} }{17}
+\contentsline {section}{\numberline {1.9}\texttt {createTrsf} }{17}
+\contentsline {section}{\numberline {1.10}\texttt {cropImage} }{17}
+\contentsline {section}{\numberline {1.11}\texttt {invTrsf} }{19}
+\contentsline {section}{\numberline {1.12}\texttt {pointmatching} }{19}
+\contentsline {subsection}{\numberline {1.12.1}Vector field estimation}{20}
+\contentsline {section}{\numberline {1.13}\texttt {printImage} }{21}
+\contentsline {section}{\numberline {1.14}\texttt {printTrsf} }{21}
+\contentsline {chapter}{\numberline {2}Application Programming Interfaces}{22}
+\contentsline {section}{\numberline {2.1}\texttt {blockmatching} API}{22}
+\contentsline {part}{II\hspace {1em}Examples of use}{24}
+\contentsline {chapter}{\numberline {3}Command Line Interfaces}{25}
+\contentsline {section}{\numberline {3.1}\texttt {pointmatching} }{25}
+\contentsline {part}{III\hspace {1em}Methodological notes}{28}
+\contentsline {chapter}{\numberline {4}Frames}{29}
+\contentsline {section}{\numberline {4.1}The digital world ($\mathbb {Z}$)}{29}
+\contentsline {section}{\numberline {4.2}Image: $\mathbb {R} \leftrightarrow \mathbb {Z}$}{30}
+\contentsline {chapter}{\numberline {5}Transformations}{31}
+\contentsline {section}{\numberline {5.1}Definitions}{31}
+\contentsline {subsection}{\numberline {5.1.1}Linear transformations}{31}
+\contentsline {subsection}{\numberline {5.1.2}Vector fields}{31}
+\contentsline {section}{\numberline {5.2}Homogeneous coordinates}{31}
+\contentsline {subsection}{\numberline {5.2.1}Linear transformations}{32}
+\contentsline {subsection}{\numberline {5.2.2}Vector fields}{32}
+\contentsline {section}{\numberline {5.3}'voxel' versus 'real' definitions}{33}
+\contentsline {subsection}{\numberline {5.3.1}Linear transformations}{33}
+\contentsline {subsection}{\numberline {5.3.2}Vector fields}{34}
+\contentsline {subsubsection}{\numberline {5.3.2.1}Vector fields: $\mathbb {R} \rightarrow \mathbb {Z}$}{34}
+\contentsline {subsubsection}{\numberline {5.3.2.2}Vector fields: $\mathbb {Z} \rightarrow \mathbb {R}$}{35}
+\contentsline {section}{\numberline {5.4}Transformations: linear $\rightarrow $ vector field}{35}
+\contentsline {section}{\numberline {5.5}Transformation composition}{36}
+\contentsline {subsection}{\numberline {5.5.1}Linear $\circ $ linear}{36}
+\contentsline {subsection}{\numberline {5.5.2}Linear $\circ $ vector field in $\mathbb {R}$ }{36}
+\contentsline {subsection}{\numberline {5.5.3}Linear $\circ $ vector field in $\mathbb {Z}$ }{36}
+\contentsline {subsection}{\numberline {5.5.4}Vector field $\circ $ linear in $\mathbb {R}$ }{37}
+\contentsline {subsection}{\numberline {5.5.5}Vector field $\circ $ linear in $\mathbb {Z}$ }{37}
+\contentsline {subsection}{\numberline {5.5.6}Vector field $\circ $ vector field in $\mathbb {R}$ }{37}
+\contentsline {subsection}{\numberline {5.5.7}Vector field $\circ $ vector field in $\mathbb {Z}$ }{38}
+\contentsline {section}{\numberline {5.6}Field of view center alignment}{38}
+\contentsline {section}{\numberline {5.7}Transformation inversion}{38}
+\contentsline {subsection}{\numberline {5.7.1}Linear transformations}{39}
+\contentsline {subsection}{\numberline {5.7.2}Vector field in $\mathbb {Z}$}{39}
+\contentsline {subsubsection}{\numberline {5.7.2.1}Principle}{39}
+\contentsline {subsubsection}{\numberline {5.7.2.2}Implementation}{40}
+\contentsline {subsubsection}{\numberline {5.7.2.3}Initialization}{40}
+\contentsline {subsection}{\numberline {5.7.3}Vector field in $\mathbb {R}$}{40}
+\contentsline {subsubsection}{\numberline {5.7.3.1}Principle}{40}
+\contentsline {subsubsection}{\numberline {5.7.3.2}Implementation}{41}
+\contentsline {subsubsection}{\numberline {5.7.3.3}Initialization}{41}
+\contentsline {chapter}{\numberline {6}Image interpolation}{42}
+\contentsline {section}{\numberline {6.1}Linear transformations}{42}
+\contentsline {section}{\numberline {6.2}Non-linear transformations defined by vector fields}{43}

@@ -1,0 +1,115 @@
+
+INC_MORPHO_TEMP = templates-morpho-include
+SRC_MORPHO_TEMP = templates-morpho-src
+
+MORPHO_FILES = morpho.c morpho.h
+OUT_DIR = ./../
+
+OUT_FILES=${addprefix ${OUT_DIR}/ , ${MORPHO_FILES} }
+
+
+all : ${MORPHO_FILES}
+
+morpho.h : ${INC_MORPHO_TEMP}/morpho.begin \
+	${INC_MORPHO_TEMP}/morpho.middle \
+	${INC_MORPHO_TEMP}/morpho.end
+	@echo "... creating $@ from templates"
+	@cp ${INC_MORPHO_TEMP}/morpho.begin $@
+
+	@sed -e "s/OPERATION/Dilation/g" -e "s/BOG_/Binary/g" \
+	     -e "s/TYPE/u8/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/OPERATION/Erosion/g" -e "s/BOG_/Binary/g" \
+	     -e "s/TYPE/u8/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@sed -e "s/OPERATION/Dilation/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/TYPE/u8/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/OPERATION/Erosion/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/TYPE/u8/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@sed -e "s/OPERATION/Dilation/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/TYPE/r32/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/OPERATION/Erosion/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/TYPE/r32/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@sed -e "s/OPERATION/Dilation/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/TYPE/u16/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/OPERATION/Erosion/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/TYPE/u16/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@sed -e "s/OPERATION/Dilation/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/TYPE/s16/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/OPERATION/Erosion/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/TYPE/s16/g" \
+             ${INC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@cat ${INC_MORPHO_TEMP}/morpho.end >> $@
+
+
+morpho.c : ${SRC_MORPHO_TEMP}/morpho.begin \
+	${SRC_MORPHO_TEMP}/morpho.middle 
+	@echo "... creating $@ from templates"
+	@cp ${SRC_MORPHO_TEMP}/morpho.begin $@
+
+	@sed -e "s/_BINARY_OPERATION_/1/g" -e "s/_NOTHINGTOBEDONE_/255/g"  \
+	     -e "s/OPERATION/Dilation/g"   -e "s/BOG_/Binary/g" \
+	     -e "s/_TEST_/>/g"             -e "s/_INTOP_/|/g" \
+	     -e "s/TYPE/u8/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/_BINARY_OPERATION_/1/g" -e "s/_NOTHINGTOBEDONE_/0/g"  \
+	     -e "s/OPERATION/Erosion/g" -e "s/BOG_/Binary/g" \
+	     -e "s/_TEST_/</g"             -e "s/_INTOP_/\&/g" \
+	     -e "s/TYPE/u8/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@sed -e "s/_BINARY_OPERATION_/0/g" -e "s/_NOTHINGTOBEDONE_/255/g"  \
+	     -e "s/OPERATION/Dilation/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/_TEST_/>/g"             -e "s/_INTOP_/|/g" \
+	     -e "s/TYPE/u8/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/_BINARY_OPERATION_/0/g" -e "s/_NOTHINGTOBEDONE_/0/g"  \
+	     -e "s/OPERATION/Erosion/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/_TEST_/</g"             -e "s/_INTOP_/\&/g" \
+	     -e "s/TYPE/u8/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@sed -e "s/_BINARY_OPERATION_/0/g" -e "s/_NOTHINGTOBEDONE_/255/g"  \
+	     -e "s/OPERATION/Dilation/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/_TEST_/>/g"             -e "s/_INTOP_/|/g" \
+	     -e "s/TYPE/r32/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/_BINARY_OPERATION_/0/g" -e "s/_NOTHINGTOBEDONE_/0/g"  \
+	     -e "s/OPERATION/Erosion/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/_TEST_/</g"             -e "s/_INTOP_/\&/g" \
+	     -e "s/TYPE/r32/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@sed -e "s/_BINARY_OPERATION_/0/g" -e "s/_NOTHINGTOBEDONE_/65535/g"  \
+	     -e "s/OPERATION/Dilation/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/_TEST_/>/g"             -e "s/_INTOP_/|/g" \
+	     -e "s/TYPE/u16/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/_BINARY_OPERATION_/0/g" -e "s/_NOTHINGTOBEDONE_/0/g"  \
+	     -e "s/OPERATION/Erosion/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/_TEST_/</g"             -e "s/_INTOP_/\&/g" \
+	     -e "s/TYPE/u16/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+
+	@sed -e "s/_BINARY_OPERATION_/0/g" -e "s/_NOTHINGTOBEDONE_/32767/g"  \
+	     -e "s/OPERATION/Dilation/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/_TEST_/>/g"             -e "s/_INTOP_/|/g" \
+	     -e "s/TYPE/s16/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@
+	@sed -e "s/_BINARY_OPERATION_/0/g" -e "s/_NOTHINGTOBEDONE_/-32768/g"  \
+	     -e "s/OPERATION/Erosion/g" -e "s/BOG_/GreyLevel/g" \
+	     -e "s/_TEST_/</g"             -e "s/_INTOP_/\&/g" \
+	     -e "s/TYPE/s16/g" \
+             ${SRC_MORPHO_TEMP}/morpho.middle >> $@

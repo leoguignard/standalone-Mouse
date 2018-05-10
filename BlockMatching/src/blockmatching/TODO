@@ -1,0 +1,69 @@
+
+- ecriture d'image vectorielle NIFTI
+  OK
+- faire l'interpolation de transformation vectorielle dans COPYtransform
+  OK
+- ecriture de la qform en inrimage
+  OK
+- construction de l'image resultat pour applyTrsf (QFORM ?)
+  OK
+- contruction de la transformation resultat pour composeTrsf
+  OK
+
+- ajouter un QFROM avec seulement homothetie + translation et simplifier les calculs
+  (passage reel a voxel, composition, etc)
+    api-applyTrsf.c: done
+    bal-blockmatching.c: done
+    bal-field.c: done
+    bal-image.c: done
+    bal-pyramid.c: done
+    bal-transformation-compose.c: done
+    bal-transformation-copy.c: done
+    bal-transformation-tools.c: not necessary
+
+
+- inversion de la transformation
+  seems OK
+
+- ajouter SFORM, et qform_code, sform_code
+  OK
+
+
+- refaire tests de recalage depuis SFORM
+  OK
+
+- passer cropImage en Qform
+  OK
+
+
+- BAL_ComputeImageToImageTransformation (bal-transformation-tools.c)
+  si 2 Qform l'initialization doit etre l'identite ...
+  ou ajouter une option pour ne pas faire d'initialization ...
+
+
+
+
+
+- doc :
+  parler des unites dans blockmatching, applyTrsf, invTrsf, copyTrsf
+  verifier la composition par defaut
+  faire test avec -left = affine pour le non-lineaire
+
+  composeTrsf : indiquer que -iso est pas compativle avec -trsf
+
+- faire quelques scripts de test
+
+
+
+
+-voir avec Gael pour l'interpolation
+
+
+
+
+
+
+
+- ajouter un masque pour le recalage
+
+- transformation de maillages VTK

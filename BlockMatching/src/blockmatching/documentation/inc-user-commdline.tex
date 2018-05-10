@@ -1,0 +1,867 @@
+
+\chapter{Command Line Interfaces}
+
+
+
+
+
+\section{\blockmatching}
+\label{sec:blockmatching}
+
+\subsection{Basic use}
+
+\blockmatching registers a floating image $I_{flo}$ onto a reference image $I_{ref}$, and yields two results: the transformation from the reference image frame towards the floating image frame,  $T_{res} = T_{I_{flo} \leftarrow I_{ref}}$, and the floating image resampled in the same frame than the reference image, $I_{res} = I_{flo} \circ T_{I_{flo} \leftarrow I_{ref}}$.
+
+\begin{code}{0.8}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ -res $I_{res}$ -res-trsf $T_{res}$ ...
+\end{code}
+
+$T_{res} = T_{I_{flo} \leftarrow I_{ref}}$ allows to resample $I_{flo}$, or any image defined in the same frame than $I_{flo}$, into the same frame than $I_{ref}$, which can also be done afterwards with \applyTrsf.
+
+\begin{code}{0.8}
+\% \applyTrsf $I_{flo}$ $I_{res}$ -trsf $T_{res}$ -template $I_{ref}$
+\end{code}
+
+For instance, this allows to \textit{visualize} the deformation undergone by $I_{flo}$ by applying the transformation to a grid image (see \createGrid). 
+
+
+
+
+
+\subsection{Principle}
+
+The principle of \blockmatching is to pair blocks from the floating
+image $I_{flo}$ with blocks of the  reference image $I_{ref}$,
+i.e. for each blocks in  the floating
+image $I_{flo}$, we are looking in a neighborhood of the reference
+image $I_{ref}$ for the best similar block.
+
+More precisely, \blockmatching computes $T_{res} = T_{I_{flo} \leftarrow I_{ref}}$ that allows to resample $I_{flo}$ in the frame of $T_{ref}$.
+At iteration $i$, pairings are built between $I_{flo} \circ T^{(i)}_{I_{flo} \leftarrow I_{ref}}$ ($I_{flo}$ resampled by the estimation of $T_{I_{flo} \leftarrow I_{ref}}$ at iteration $i$) and $T_{ref}$. With these pairings, an incremental transformation $\delta T^{(i)} = T_{I^{(i)}_{flo} \leftarrow I_{ref}}$ is computed and used to update the transformation:
+\begin{displaymath}
+T^{(i+1)}_{I_{flo} \leftarrow I_{ref}} 
+= T^{(i)}_{I_{flo} \leftarrow I_{ref}} \circ \delta T^{(i)}
+\end{displaymath}
+
+\begin{itemize}
+
+\item Registration can be conducted within a hierarchical approach, by the means of image pyramids: see section \ref{sec:parameters:hierarchical}.
+
+\item Pairings are built by associating similar blocks (or small images) between the resampled floating image $I_{flo} \circ T^{(i)}_{I_{flo} \leftarrow I_{ref}}$ and the reference image $I_{ref}$: section \ref{sec:parameters:block:definition} introduces some option for the block definition while section \ref{sec:parameters:block:pairing} presents options for block pairings.
+
+\item Transformations are estimated by the means of (weighted) least (trimmed) squares: see section \ref{sec:parameters:transformation:estimation} for generic options for transformation estimation, and section \ref{sec:parameters:vectorfield:estimation} that presents dedicated options for vector field estimation.
+
+\end{itemize}
+
+
+
+
+
+
+\subsection{Options and parameters (general informations)}
+
+
+Running the program without any options gives the minimal syntax:
+\begin{code}{1}
+\% \blockmatching 
+\end{code}
+Running it with either \option{-h} or \option{--h} gives the option list:
+\begin{code}{1}
+\% \blockmatching -h
+\end{code}
+Running it with either \option{-help} or \option{--help} gives some details about the options:
+\begin{code}{1}
+\% \blockmatching -help
+\end{code}
+
+\begin{attention} 
+Default parameters depend on the transformation type (linear or non-linear). 
+The \option{-print-parameters} allows printing the values of the parameters, so running \blockmatching with this option along with the chosen type of transformation (with \option{-trsf-type}) may be a good idea. 
+\begin{code}{1}
+\% \blockmatching ... -print-parameters
+\end{code}
+If a logfile name is given (with option \option{-logfile}), parameter values will be printed out in this file.
+
+In addition, when changing parameters, comparing the parameter values with the \option{-print-parameters} before and after the parameter changes allows to check that the applied changes are the expected ones.
+\end{attention}
+
+
+
+
+
+
+
+
+
+
+\subsection{Initial transformations}
+Two transformations, $T_{left}$ and $T_{init}$, can be passed
+as parameters. While $T_{left}$ (left-handed transformation) will remain unchanged during the
+registration procedure, $T_{init}$ is the initial value of the
+transformation to be computed (recall this is an iterative
+calculation). More precisely (see also section~\ref{sec:field:view:center:alignment}), let $T^{(0)}$ denote the initial value
+the transformation to be computed.
+
+\begin{itemize}
+\item if $T_{init}$ is given, $T^{(0)} = T_{init}$ 
+\item else 
+\begin{itemize}
+\item if $T_{left}$ is given, $T^{(0)}  = \mathbf{Id}$
+\item else (neither $T_{init}$ nor $T_{left}$ are given), $T^{(0)}$ is the default transformation (can be specified with the \option{-default-transformation} option). It is either the translation that superimposes the centers of the fields of view (\option{-default-transformation fovcenter}) of the two images $I_{ref}$ and
+$I_{flo}$ or the identity (\option{-default-transformation identity}).
+\end{itemize}
+\end{itemize}
+
+The initial state of the registration procedure is the
+comparison of the reference image $I_{ref}$ with the transformed
+floating  image $I_{flo} \left( \circ T_{left} \right) \circ T^{(0)}$.
+\begin{itemize}
+\item[] \option{-[left|initial]-transformation} allows to initialize $T_{left}$, while
+\item[] \option{-initial-result-transformation} allows to initialize $T_{init}$
+\end{itemize}
+
+\begin{itemize}
+
+\item the option \option{-[initial|left]-[voxel-]transformation} is
+  used to specify a transformation $T_{left}$ that is applied to the
+  floating image $I_{flo}$. Therefore, it comes to register $I_{flo}
+  \circ T_{left}$ with $I_{ref}$. Thus, the resulting transformation,
+  $T_{res}$, allows to resample $I_{flo}$ onto $I_{ref}$ by
+  calculating $I_{flo} \circ T_{left} \circ T_{res}$.
+
+In other words, the transformation $T_{res}$ obtained with
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ... -initial-transformation $T_{left}$  -res-trsf $T_{res}$
+\end{code}
+is comparable to the one, $T_{res,2}$ obtained with the following commands
+\begin{code}{1}
+\% \applyTrsf $I_{flo}$ $I_{flo,2}$ -trsf $T_{left}$ \\
+\% \blockmatching -flo $I_{flo,2}$ -ref $I_{ref}$ ... -res-trsf $T_{res,2}$
+\end{code}
+
+\begin{note}
+When the \option{-composition-with-[initial|left]} is specified, the
+result transformation that is written is $T_{left} \circ T_{res}$. 
+\end{note}
+
+This may be useful in case of successive registrations, e.g. with
+different transformation types. Indeed, one may want to first register
+the two images $I_{flo}$ and $I_{ref}$ with a rigid transformation and
+then with an affine transformation.
+
+\begin{enumerate}
+\item A first solution is to compute the rigid transformation
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ... -res-trsf
+$T_{rig}$ -trsf-type rigid -res $I_{flo,2}$
+\end{code}
+and then an affine transformation by comparing the previous result
+$I_{flo,2} = I_{flo} \circ T_{rig}$ with $I_{ref}$
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo,2}$ -ref $I_{ref}$ ... -res-trsf
+$T_{aff}$ -trsf-type affine -res $I_{flo,3}$
+\end{code}
+$I_{flo}$ can be then be directly resampled onto $I_{ref}$ with the
+composed transformation $T_{resampling} = T_{rig} \circ T_{aff}$
+\begin{code}{1}
+\% \composeTrsf -res $T_{resampling}$ -trsfs $T_{rig}$ $T_{aff}$
+\end{code}
+
+\item A second solution consists in also first computing the rigid transformation
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ... -res-trsf
+$T_{rig}$ -trsf-type rigid -res $I_{flo,2}$
+\end{code}
+but then $T_{rig}$ is used as parameter to
+\option{-left-transformation} with $I_{flo}$ as floating image
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ... -res-trsf
+$T_{aff}$ -trsf-type affine -res $I_{flo,4}$ -left-transformation $T_{rig}$
+\end{code}
+This second solution is to be prefered. Indeed, the resampled version of
+$I_{flo}$ by $T_{rig}$ can miss some data (data of $I_{flo}$ that are
+not in the field of view (FOV) of $I_{ref}$ after resampling) and
+cropping effects may appear (parts of FOV of  $I_{ref}$ that do not
+have correspondant areas in  $I_{flo}$ by $T_{rig}$).
+
+Note that the command
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ... -res-trsf
+$T_{resampling}$ -trsf-type affine -res $I_{flo,4}$ -left-transformation
+$T_{rig}$ -composition-with-left
+\end{code}
+has $T_{resampling}$ as output transformation.
+
+\end{enumerate}
+
+\item \label{opt:initial:result:transformation} the option \option{-initial-result-[voxel-]transformation} is used to specify the initial value of the transformation to be computed. This can be used to continue a registration done at the higher scale.
+
+For instance, the result transformation $T_{res}$ computed in one shot by
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ...  -res-trsf
+$T_{res}$ -py-ll 0 -py-hl 3 -flo-frac 0.75
+\end{code}
+is equal to the result transformation $T_{res,2}$ that is computed in two step (the first step uses the scales 3 and 2, while the second one uses the scales 1 and 0).
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ...  -res-trsf
+$T_{intermediary}$ -py-ll 2 -py-hl 3 -flo-frac 0.75 \\
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ...  -init-res-trsf
+$T_{intermediary}$ -res-trsf $T_{res,2}$ -py-ll 0 -py-hl 1 -flo-frac 0.75
+\end{code}
+This may allow to qualitatively evaluate the intermediary result before running the algorithm at the lower scales that are computationaly expensive.
+
+\begin{note}
+Please note the \option{-flo-frac 0.75} (see option
+\option{-floating-selection-fraction}, page
+\pageref{opt:floating:selection:fraction}) that sets the fraction of
+blocks of the floating image to be kept for the pairing search. Thanks
+to this option, it is constant through the pyramid levels, and for
+both computation schemes (one-step and two-steps).
+\end{note}
+
+\end{itemize}
+
+Initial transformations can be obtained by pairing points with \pointmatching (see section \ref{sec:pointmatching}).
+
+
+
+\subsection{Result transformation}
+
+\option{-result-[voxel-]transformation} is used to specify the name of
+the output transformation.
+
+When no left-handed transformation is passed, it is the transformation $T_{res} = T_{I_{flo} \leftarrow
+  I_{ref}}$ that allows to resample $I_{flo}$ onto $I_{ref}$.
+
+When a left-handed transformation is passed with the option
+\option{-left-[voxel-]transformation}, the result transformation $T_{res}$ is
+the one that allows to resample  $I_{flo} \circ T_{left}$ onto
+$I_{ref}$, i.e. $T_{res} = T_{I_{flo} \circ T_{left} \leftarrow
+  I_{ref}}$. 
+%
+This should be the default behavior that can
+be enforced with the option \option{-no-composition-with-left}.
+%
+To resample directly $I_{flo}$ onto $I_{ref}$, it is required to have
+$T_{left} \circ T_{res}$ at hand. While it is straightforward to
+compute it thanks to \composeTrsf, it is also possible to get the
+composed transformation $T_{left} \circ T_{res}$ as the output
+transformation with the option \option{-composition-with-left}.
+
+
+\subsection{Some useful parameters}
+
+The use of some parameters is detailed here. For a complete list of parameters (and short description of them), the user is advised to use the \option{-help} option.
+
+\subsubsection{Hierarchical registration}
+\label{sec:parameters:hierarchical}
+
+To speed up the computation and to handle large deformations, the transformation is computed hierarchically. For each image 
+$I_{flo}$ and $I_{ref}$, pyramids of images are built, i.e. the pyramid $\{I^n_{flo}, \ldots, I^0_{flo}\}$ for the $I_{flo}$ image, where $I^0_{flo} = I_{flo}$ and where the dimensions of $I^{i+1}_{flo}$ are the ones of $I^{i}_{flo}$ divided\footnote{This is not strictly true, since the dimensions of $I^1_{flo}$ will be chosen to be the $2^k$ values that are closest (and smaller) to  $I^0_{flo}$ dimensions when $I^0_{flo}$ dimensions are not powers of 2.} by 2.
+
+Thus, the registration is done with pyramids
+$\{I^h_{flo}, \ldots, I^l_{flo}\}$ and $\{I^h_{ref}, \ldots, I^l_{ref}\}$, with $h$ and $l$ respectively specified by the 
+\option{-pyramid-highest-level} and 
+\option{-pyramid-lowest-level} options. A first transformation is computed with $\{I^h_{flo},I^h_{ref}\}$, that is used as initialization for the registration of  $\{I^{h-1}_{flo},I^{h-1}_{ref}\}$, and so on and so forth until $\{I^l_{flo},I^l_{ref}\}$.
+
+The lowest level of the pyramid (i.e. the image at its native sizes) is specified by $0$, i.e. \option{-pyramid-lowest-level 0}.
+
+\begin{itemize}
+\item Specifying a high value of $h$ allows to search for long-range pairings (since a small displacement at a high scale image corresponds to a large displacement at a lower scale), and to speed up the computation: for 3D images, the data are reduced with a factor 8 between two consecutive scales (and so is the number of blocks).
+\item On the other hand, when looking for small deformations, specifying a large $h$ is definitively not adequate, except if the search neighborhood size is adapted to the scale.
+\end{itemize}
+
+The finest the resolution, the more heavy the computation. When it comes to tune parameters, it may be useful to only perform the registration with the highest levels of the pyramid (ie to specify a high value to the \option{-pyramid-lowest-level} option, and to visually check the results before launching the computation with the lowest levels of the pyramid.
+
+Moreover, if the images to be registered are quite large, I/0 operations and pyramid computation can be quite costly. It may then be considered to compute subsampled images beforehand, either by choosing the subsampling parameters with \applyTrsf (see section \ref{sec:applyTrsf}) or by picking one of the pyramid images built with \buildPyramidImage (see section \ref{sec:buildPyramidImage}) that can be computed also beforehand, and then perform the registration on subsampled images. It is detailed in section \ref{sec:hand:made:hierarchical:registration}.
+
+
+
+
+
+\subsubsection{Block definition/selection parameters}
+\label{sec:parameters:block:definition}
+
+
+To build blocks, two parameters are important:
+\begin{itemize}
+\item[] \option{-block-size} allows to specify the size of the blocks. Small blocks require a small computational effort to be processed (since the similarity measure complexity depends on the number of points inside the block), but are more likely to be paired to the "wrong" block. 
+
+On the contrary, since the information distribution is more complex in a large block, pairing large blocks is more likely to build the "right" pairings
+\item[] \option{-block-spacing} specify the spacing between consecutive blocks. Increasing the spacing allows to speed up the computation (by decreasing the number of blocks), at the price of sparser pairings. 
+\end{itemize}
+
+Some of the built blocks can be discarded for the pairing search, either because they may not yield pertinent pairings, or because they are not carrying useful information.
+
+A first selection of points or blocks can be done based on intensity values, which may be useful to prevent blocks to be build in low intensity areas as the background.
+
+\begin{itemize}
+\item[] \option{-floating-low-threshold} and \option{-floating-high-threshold} allow to specify two intensity thresholds for the blocks built from the floating image $I_{flo}$. Points with values lower or equal to the low threshold, or higher or equal to the high threshold are discarded from the block for the similarity measure computation. 
+
+\option{-floating-removed-fraction} specifies the maximal fraction of points that can be removed from a block. If too many points are removed (because of the two thresholds), the block is discarded and not considered for further computation.
+
+\item[] options \option{-reference-low-threshold},\option{-reference-high-threshold}, and \option{-reference-removed-fraction} are similar options for the reference image $I_{ref}$.
+
+\end{itemize}
+
+Previous options help to control the building of individual blocks. To further control the total number of blocks (and hence decrease the computational effort), it is also possible to select the most informative blocks from the block list. According that the standard deviation is representative of the information (blocks of uniform values have a small standard deviation), the percentage of blocks of higher standard deviation can be specified, and only these blocks are considered for the transformation computation.
+
+\begin{itemize}
+\item[] \label{opt:floating:selection:fraction} \option{-floating-selection-fraction} allows to specify the fraction of blocks of the floating image to be kept for the pairing search. It can be more finely tuned with the suffixes \option{-ll} et \option{-lt}. 
+
+\option{-floating-selection-fraction-ht} and
+\option{-floating-selection-fraction-lt}  allow to specify this
+fraction for respectively the highest and the lowest level of the
+pyramid (see section \ref{sec:parameters:hierarchical}) while the
+fraction value for intermediary levels is linearly interpolated from
+these two fractions.
+
+While it may not be required (even not advised) to remove blocks of
+the floating image for the pairing search (and thus for the
+transformation computation) at highest levels of the pyramid (where
+there are few blocks), it may be convenient (even advised) to remove
+some of them ar the lowest levels (where areas of constant image
+intensity are likely to occur). Thus, default values for this fraction
+are set to 1.0 for the highest level and 0.5 for the lowest level,
+independently of the level values. This has to be kept in mind when
+registration is conducted in several steps through the pyramid levels
+(see option \option{-initial-result-transformation} page \pageref{opt:initial:result:transformation}).
+\end{itemize}
+
+
+\subsubsection{Block search/pairing}
+\label{sec:parameters:block:pairing}
+
+To build pairings, each (selected) block of the floating image is compared to blocks of the reference image, and is paired with its best correspondent. The comparison is restricted to a neighbourhood.
+ 
+\begin{itemize}
+\item[] \option{-search-neighborhood-half-size} allows to specify the size of the search neighbourhood (in the reference image for a given block from the floating image) to build pairings. The larger the value, the larger the searched displacement (and the larger the potential resulting deformation),  and, of course, the larger the computational effort.
+
+\item[] \option{-search-neighborhood-step} allows to specify the step (the increment) between blocks in the search neighbourhood. Typically, a step equal to 2 allows to decrease by a factor 4 in 2D (8 in 3D) the number of blocks to tested in the search neighbourhood. However, the resulting pairings will be less precise.
+
+\end{itemize}
+
+
+
+\subsubsection{Transformation estimation}
+\label{sec:parameters:transformation:estimation}
+
+\begin{itemize}
+
+\item[] \option{-transformation-type} allows to specify the type of computed transformation.It is desirable to compute transformation in a hierarchical manner, from the ones with few degrees of freedom to the ones with more degrees of freedom: e.g. \option{rigid}, then \option{affine}, then \option{vectorfield}.
+
+\item[] \option{-estimator-type} allows to specify the calculation method to estimate the incremental transformation $\delta T$ from the pairings. Calculation is done by the mean of (weighted) least (trimmed) square. In case of weighted least (trimmed) squares, residuals to be minimized are weighted by the block similarity. Least trimmed squares methods allow to discard outliers from the transformation estimation.
+
+\item[] Least trimmed squares estimation is an iterative method. At each iteration (except the first one where least squares estimation is used), outliers are discarded. Outliers are defined as the samples having the largest residuals after the previous estimation.
+
+\option{-lts-fraction} defines the fraction of samples to be kept for estimation. Obviously, it should be larger than \option{0.5}.
+
+\option{-lts-deviation} allows to define the outliers with respect to residual statistics (according they follows a normal law). Let $\hat{m}_r$ and $\hat{\sigma}_r$ be respectively the mean and the standard deviation of the residuals, passing the value $c$ to \option{-lts-deviation} set the residual rejection threshold at $\hat{m}_r + c \hat{\sigma}_r$.
+
+\option{-lts-iterations} set a maximum number of iterations for the least trimmed squares estimation.
+
+
+\end{itemize}
+
+
+
+\subsubsection{Vector field transformations}
+\label{sec:parameters:vectorfield:estimation}
+
+Non-linear transformations are (up to today) encoded through vector fields. At each iteration $i$, an incremental transformation $\delta T$ est computed from the pairings, and then composed with the current transformation $T^i$ to yield the updated transformation $T^{i+1}$: 
+
+
+
+\begin{itemize}
+\item[] Building a vector field from pairing is done by interpolation with a Gaussian kernel whose standard deviation is specified by the \option{-fluid-sigma} option. Indeed, this interpolation also regularizes the pairings, and it can viewed as a fluid regularization since it is done on the incremental transformation.  It can be more finely tuned with the suffixes \option{-ll} et \option{-lt}. 
+
+Note that the outliers detection (and removal) of trimmed estimations is done by comparing the pairings to the regularized $\delta T$.
+
+\item[] \option{-elastic-sigma} is used afterwards (after composition with the incremental transformation) to regularize the global transformation $T^{i+1}$.
+
+\item[] \option{-vector-propagation-distance} and \option{-vector-fading-distance} are presented in the section dedicated to \pointmatching (section \ref{sec:pointmatching}). They are more useful in case of (very) sparse pairings.
+
+\end{itemize}
+
+
+
+
+
+\subsection{Hints}
+
+\subsubsection{How to tune parameters}
+
+\begin{itemize}
+
+\item A priori, pairings can be better built (and outliers can be better avoided) by specifying larger blocks with \option{-block-size} 
+
+\item Non-informative (i.e. almost of uniform value) blocks should be avoided since they may yield poor pairings. Selection can be done either on point-wise criteria (e.g. intensity based selection with \option{-floating-low-threshold} and \option{-floating-high-threshold}) or block-wise criteria (e.g. \option{-floa\-ting-selection-fraction}).
+
+\item When looking for small displacements/deformations, long distance pairings may be discouraged by
+\begin{itemize}
+\item only considering low levels of the pyramid (\option{-pyramid-highest-level}),
+\item diminishing the size of the search neighbourhood (\option{-search-neigh\-borhood-half-size})
+\end{itemize} 
+
+\item The regularization of non-linear deformations can be tuned with both \option{-fluid-sigma}  and \option{-elastic-sigma}. The larger the values, the less local the deformations.
+
+\end{itemize}
+
+
+\subsubsection{Hand-made hierarchical registration}
+\label{sec:hand:made:hierarchical:registration}
+
+
+If the images to be registered are quite large, I/0 operations and pyramid computation can be quite costly. It may then be considered to compute subsampled images beforehand, either by choosing the subsampling parameters with \applyTrsf (see section \ref{sec:changing:image:geometry}) or by picking one of the pyramid images (see section \ref{sec:buildPyramidImage}) that can be computed also beforehand, and then perform the registration on subsampled images. 
+In both case, it is mandatory to use \option{-res-trsf} to get the subsampling transformation.
+
+Let us consider the images $I_{flo}$ and $I_{ref}$ to be registered. $I_{flo}$ can be subsampled into $I^s_{flo}$ with:
+\begin{code}{0.8}
+\% \applyTrsf $I_{flo}$ $I^s_{flo}$ $\ldots$ -res-trsf $T^s_{flo}$ -resize
+\end{code}
+and we get $I^s_{flo} = I_{flo} \circ T^s_{flo}$. The same stands for $I_{ref}$ and we get $I^s_{ref} = I_{ref} \circ T^s_{ref}$. Registration can be done on subsampled images with
+\begin{code}{0.8}
+\% blockmatching -flo $I^s_{flo}$ -ref $I^s_{ref}$ -res $I^s_{res}$ -res-trsf $T^s_{res}$ $\ldots$
+\end{code}
+$I^s_{res} = I^s_{flo} \circ T_{res}$ is $I^s_{flo}$ resampled in the geometry of $I^s_{ref}$. We have then
+\begin{eqnarray*}
+I^s_{res} = I^s_{flo} \circ T_{res}
+& \Rightarrow &
+I_{res} \circ T^s_{ref} = I_{flo} \circ T^s_{flo} \circ T_{res} \\
+& \Rightarrow &
+I_{res} = I_{flo} \circ T^s_{flo} \circ T^s_{res} \circ {T^s_{ref}}^{(-1)}
+\end{eqnarray*}
+A transformation $\tilde{T}_{res}$ that allows to transform $I_{flo}$ in the frame of $I_{ref}$ can be estimated by
+$\tilde{T}_{res} = T^s_{flo} \circ T^s_{res} \circ {T^s_{ref}}^{(-1)}$, then with the commands
+\begin{code}{0.8}
+\% invTrsf  $T^s_{ref}$ ${T^s_{ref}}^{(-1)}$ \\
+\% composeTrsf -res $\tilde{T}_{res}$ -trsfs $T^s_{flo}$ $T^s_{res}$ ${T^s_{ref}}^{(-1)}$ -template $I_{ref}$
+\end{code}
+$\tilde{T}_{res}$ can be calculated. Please notice the use of \option{-template} that ensures that  $\tilde{T}_{res}$  is defined on the $I_{ref}$ frame (mandatory for non-linear transformations).
+Last, 
+\begin{code}{0.8}
+\% applyTrsf $I_{flo}$ $\tilde{I}_{res}$ -trsf  $\tilde{T}_{res}$ -template $I_{ref}$
+\end{code}
+yields $\tilde{I}_{res}$, ie $I_{flo}$ resampled in $I_{ref}$ frame thanks to $\tilde{T}_{res}$.
+
+
+
+
+
+\section{\blockmatching versus \baladin}
+
+% \subsection{Transformations}
+
+A typical call to \blockmatching is
+\begin{code}{0.8}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ -res $I_{block}$ 
+   -res-trsf $T_{block}$ -res-voxel-trsf $\hat{T}_{block}$ ...
+\end{code}
+where $I_{block}$, $T_{block}$, and $\hat{T}_{block}$ denote respectively the result image, i.e. the floating image resampled in the frame of $I_{ref}$, the transformation result in \textit{real} coordinates that allows to goes from $I_{ref}$ frame towards $I_{flo}$ frame (and then to resample $I_{flo}$ in the frame of $I_{ref}$), and the transformation result in \textit{voxel} coordinates.
+
+A typical call to \baladin is
+\begin{code}{0.8}
+\% \baladin -flo $I_{flo}$ -ref $I_{ref}$ -res $I_{balad}$ 
+-result-matrix $\hat{T}_{balad}$ -result-real-matrix $T_{balad}$ ...
+\end{code}
+where $I_{balad}$, $T_{balad}$, and $\hat{T}_{balad}$ denote respectively the result image, i.e. the floating image resampled in the frame of $I_{ref}$, the transformation result in \textit{real} coordinates that allows to goes from $I_{flo}$ frame towards $I_{ref}$ frame, and the transformation result in \textit{voxel} coordinates.
+
+\begin{attention} The result transformation of \baladin is then the inverse of that of \blockmatching. We have 
+$$ T_{block} \sim T^{-1}_{balad} \quad \mbox{ and } \quad \hat{T}_{block} \sim \hat{T}^{-1}_{balad}
+$$
+\end{attention}
+
+Therefore $T_{block} \circ T_{balad}$ and $\hat{T}_{block} \circ \hat{T}_{balad}$ should be close to the identity, and this can be verified by computing $T_{test} = T_{block} \circ T_{balad}$
+and $\hat{T}_{test} = \hat{T}_{block} \circ \hat{T}_{balad}$:
+\begin{code}{0.8}
+\% \composeTrsf -res $T_{test}$ -trsfs $T_{block}$ $T_{balad}$ \\
+\% \printTrsf $T_{test}$\\
+\% \composeTrsf -res $\hat{T}_{test}$ -trsfs $\hat{T}_{block}$ $\hat{T}_{balad}$\\
+\% \printTrsf $\hat{T}_{test}$
+\end{code}
+
+The transformations issued from \baladin can be used to resample the floating image $I_{flo}$ but require to be inverted beforehand. To compute the resampled floating image $I_{balad}$ from the \textit{real} transformation $T_{balad}$, the commands are:
+\begin{code}{0.8}
+\% \invTrsf $T_{balad}$ $T^{-1}_{balad}$ \\
+\% \applyTrsf $I_{flo}$ $I_{balad}$ -template $I_{ref}$ -trsf $T^{-1}_{balad}$
+\end{code}
+$I_{balad}$ can also be computed from from the \textit{voxel} transformation $\hat{T}_{balad}$ accordingly
+\begin{code}{0.8}
+\% \invTrsf $\hat{T}_{balad}$ $\hat{T}^{-1}_{balad}$ \\
+\% \applyTrsf $I_{flo}$ $I_{balad}$ -template $I_{ref}$ -voxel-trsf $\hat{T}^{-1}_{balad}$
+\end{code}
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+\section{\applyTrsf}
+\label{sec:applyTrsf}
+
+\subsection{Basic use}
+
+\applyTrsf allows to resample an image according to a transformation $T$. One has to recall that the transformation goes from the \textit{destination/result image} towards the \textit{image to be resampled}. This is counter-intuitive, but can easily be explained: to compute the value of the point $M$ in the destination/result image, one has to know where this point comes from in the image to be resampled.
+
+So, to resample the image $I_{flo}$ in the same frame than the image $I_{ref}$ with a transformation that $T$ goes from $I_{ref}$ towards $I_{flo}$, i.e. 
+\begin{eqnarray*}
+T & = & T_{I_{flo} \leftarrow I_{ref}} \\
+I_{res} & = & I_{flo} \circ T
+\end{eqnarray*}
+ the command is  
+
+\begin{code}{0.8}
+\% \applyTrsf $I_{flo}$ $I_{res}$ -trsf $T$ -template $I_{ref}$
+\end{code}
+
+The \option{-trsf} implies that the transformation is in \textit{real frames} (i.e. the coordinates of the points are in real units, for instance millimeters). We recall that to a voxel point $M_{\mathbb{Z}} = (i,j,k)$ is associated a real point $M_{\mathbb{R}} = (x,y,z)$ through a conversion matrix $H_{I,\mathbb{R} \leftarrow \mathbb{Z}}$ (typically a diagonal matrix containing the voxel sizes along each direction).
+
+The \option{-voxel-trsf} allows to specify the transformation in \textit{voxel frames}. The transformation in the \textit{voxel frames}, $T_{I_{flo} \leftarrow I_{ref}, \mathbb{Z}}$ is obtained from the transformation in the \textit{real frames}, $T_{I_{flo} \leftarrow I_{ref}, \mathbb{R}}$, by multiplying it by the conversion matrices:
+$$
+T_{I_{flo} \leftarrow I_{ref}, \mathbb{Z}} 
+=
+H^{-1}_{I_{flo},\mathbb{R} \leftarrow \mathbb{Z}} \circ
+T_{I_{flo} \leftarrow I_{ref}, \mathbb{R}} \circ
+H_{I_{ref},\mathbb{R} \leftarrow \mathbb{Z}}
+$$
+Conversely,
+$$
+T_{I_{flo} \leftarrow I_{ref}, \mathbb{R}} 
+=
+H_{I_{flo},\mathbb{R} \leftarrow \mathbb{Z}} \circ
+T_{I_{flo} \leftarrow I_{ref}, \mathbb{Z}} \circ
+H^{-1}_{I_{ref},\mathbb{R} \leftarrow \mathbb{Z}}
+$$
+
+
+\subsection{Changing image geometry}
+\label{sec:changing:image:geometry}
+
+\applyTrsf may be used to change the image geometry, i.e. either changing the number of pixel/voxel or the pixel/voxel size along a direction. Please note that the field of view is considered as unchanged, so that the number of pixel/voxel time the pixel/voxel size is a constant. This is done by the \option{-resize} option.
+
+Let consider an image $I$ of dimensions $1000 \times 1000$ with a pixel size of 1 along each direction. Then
+\begin{code}{0.8}
+\% \applyTrsf $I$ $J$ -dim 200 300 -res-trsf $T$ -resize
+\end{code}
+creates an image $J$  of dimensions $200 \times 300$: pixel/voxel sizes are calculated so as the image spans the same field of view and are respectively $5.00$ and $3.33$. The transformation $T$ is the transformation used to resample $I$, we have then $J = I \circ T$. When expressed in the real frame, this transformation is a translation (see section \ref{sec:frame:conversion}). 
+
+Image geometry can also be "imported" from an other image. Let us consider an image $I$ and a template image $R$, thus 
+\begin{code}{0.8}
+\% \applyTrsf -flo $I$ -ref $R$ -res $J$ -default-transformation identity
+\end{code}
+will produce an image $J$ with the same geometry than the image $R$. The voxel-to-voxel transformation that allows to resample $I$ in $R$ is here computed by
+\begin{displaymath}
+\mathbf{H}_{I,\mathbb{Z} \leftarrow \mathbb{R}} 
+\circ \mathbf{Id} \circ \mathbf{H}_{R,\mathbb{R} \leftarrow \mathbb{Z}} 
+\end{displaymath}
+(please refer to section \ref{sec:frame:conversion} for the definition of the conversion matrices $\mathbf{H}$). Such an example (options are similar to \blockmatching command line) emphasizes that \applyTrsf can be used to resample the floating image $I$ at its starting position when registering it with a reference image $R$.
+
+\section{\applyTrsfToPoints}
+
+
+
+
+
+\section{\buildPyramidImage}
+\label{sec:buildPyramidImage}
+
+
+
+
+
+\section{\composeTrsf}
+
+
+\composeTrsf allows to compose a series of transformations. The transformations to be composed are introduced by the \option{-trsfs} option:
+\begin{code}{1}
+\% \composeTrsf ... -res $T_{res}$ -trsfs  $T_1$ $T_2$ ... $T_N$
+\end{code}
+
+
+Transformations are composed in the order they are given.
+The line \option{-trsfs $T_1$ $T_2$ ... $T_N$} assumes that the transformation
+$T_i$ goes from image $I_{i+1}$ to image $I_{i}$ (then allows to resample
+$I_{i}$ in the same frame than $I_{i+1}$), i.e.  
+$$T_{i} = T_{I_{i} \leftarrow I_{i+1}}$$
+The resulting transformation will goes from $I_{N+1}$ to $I_1$ 
+(then allows to resample $I_1$ in the same frame than $I_{N+1}$). Thus 
+\begin{code}{1}
+\% \composeTrsf ... -res $T_{res}$ -trsfs  $T_1$ $T_2$ ... $T_N$
+\end{code}
+computes
+\begin{eqnarray*}
+T_{res} & = & T_1 \circ T_2 \circ ... \circ T_N \\
+& = & T_{I_{1} \leftarrow I_{2}} \circ  
+      T_{I_{2} \leftarrow I_{3}} \circ  ... \circ 
+      T_{I_{N} \leftarrow I_{N+1}} \\
+& = & T_{I_{1} \leftarrow I_{N+1}} \\
+\end{eqnarray*}
+
+
+\noindent{\textbf{Example:}} the following series of resampling
+\begin{code}{1}
+\% \applyTrsf $I_0$ $I_1$ -trsf $T_0$ ... \\
+\% \applyTrsf $I_1$ $I_2$ -trsf $T_1$ ... \\
+\% \applyTrsf $I_2$ $I_3$ -trsf $T_2$ ...
+\end{code}
+is equivalent to the transformation composition
+\begin{code}{1}
+\% \composeTrsf -res $T_{I_0 \leftarrow I_3}$ -trsfs $T_0$ $T_1$ $T_2$
+\end{code}
+that allows to get $I_3$ directly from $I_0$
+\begin{code}{1}
+\% \applyTrsf $I_0$ $I_3$ -trsf $T_{I_0 \leftarrow I_3}$ ... 
+\end{code}
+
+
+\noindent{\textbf{Example:}} when registering non-linearly two images, it is usual to perform several registration with an increasing complexity of the sought transformations:
+\begin{itemize}
+\itemsep -1ex
+\item either rigid $\rightarrow$ affine $\rightarrow$ vectorfield,
+\item or affine $\rightarrow$ vectorfield.
+\end{itemize}
+In the latter case, it comes to do 
+\begin{code}{0.8}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ -res $I'_{flo}$ -res-trsf $T_{0}$ \\
+\hphantom{\% } -trsf-type affine ... \\
+\% \blockmatching -flo $I'_{flo}$ -ref $I_{ref}$ -res $I''_{flo}$ -res-trsf $T_{1}$ \\
+\hphantom{\% } -trsf-type vectorfield ... \\
+\end{code}
+Thus, to directly resample $I_{flo}$ into the geometry of $I_{ref}$, the commands are
+\begin{code}{0.8}
+\% \composeTrsf -res $T_{I_{flo} \leftarrow I_{ref}}$ -trsfs $T_0$ $T_1$ \\
+\% \applyTrsf $I_{flo}$ $I_{res}$ -trsf $T_{I_{flo} \leftarrow I_{ref}}$ ... 
+\end{code}
+$I_{res}$ being comparable to $I''_{flo}$.
+
+\begin{attention}
+Transformations are assumed to be in real units.
+\end{attention}
+
+\section{\copyTrsf}
+
+
+\copyTrsf allows to copy a transformation from one type to an other or/and to convert it from \textit{real units} to \textit{voxel units} or conversely.
+
+The command
+\begin{code}{0.8}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ -res $I_{res}$ -res-trsf $T_{res,\mathbb{R}}$ -res-voxel-trsf $T_{res,\mathbb{Z}}$ ...
+\end{code}
+allows to register the image $I_{flo}$ onto $I_{ref}$ and computes the transformation 
+$T_{res,\mathbb{R}}$ (in real units) that allows to resample $I_{flo}$ in the same frame tham $I_{ref}$, the transformation $T_{res,\mathbb{Z}}$ being $T_{res,\mathbb{R}}$ expressed in voxel units).
+
+The conversion from \textit{real} to \textit{voxel} units can also be achieved by 
+\begin{code}{0.8}
+\% \copyTrsf $T_{res,\mathbb{R}}$ $T_{res,\mathbb{Z}}$ -floating $I_{flo}$ -template $I_{ref}$ -input-unit real -output-unit voxel
+\end{code}
+while the conversion from \textit{voxel} to \textit{real} units can also be achieved by 
+\begin{code}{0.8}
+\% \copyTrsf $T_{res,\mathbb{Z}}$ $T_{res,\mathbb{R}}$ -floating $I_{flo}$ -template $I_{ref}$ -input-unit voxel -output-unit real
+\end{code}
+
+\copyTrsf can also be used to copy a linear transformation $T_{linear}$, expressed as a matrice, in a vector field, $T_{vector}$. It is mandatory to provide a template image that defines the geometry of the vector field (which is nothing but a vectorial image).
+
+\begin{code}{0.8}
+\% \copyTrsf $T_{linear}$ $T_{vector}$  -template $I_{ref}$ -trsf-type vectorfield[2D,3D]
+\end{code}
+
+
+
+
+
+
+\section{\createGrid}
+
+\createGrid creates an image containing a grid, which can be useful to "visualize" transformations or deformations.
+
+
+\noindent{\textbf{Example:}} the following registration has been ran
+\begin{code}{1}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ ... -res-trsf $T_{res}$ -res $I_{res}$
+\end{code}
+One can create a grid image having the same geometry than $I_{flo}$ (thanks to \option{-template $I_{flo}$})
+\begin{code}{1}
+\% \createGrid $I_{grid}$ -template $I_{flo}$ 
+\end{code}
+and use $T_{res}$ to resample this grid image into the geometry of $I_{ref}$ (thanks to \option{-template $I_{ref}$})
+\begin{code}{1}
+\% \applyTrsf $I_{grid}$ $I_{resampled\_grid}$ -trsf $T_{res}$ -template $I_{ref}$ 
+\end{code}
+$I_{resampled\_grid}$ exhibits the same transformation/deformation with respect to $I_{grid}$ than 
+$I_{res}$ with respect to $I_{flo}$.
+
+
+\section{\createTrsf}
+
+
+\section{\cropImage}
+
+\cropImage allows to crop an image. As a side result, it can also write the transformation "summarizing" the crop.
+
+\noindent{\textbf{Example:}}
+the following command crops, from $I_{ref}$, a subvolume $J_{ref}$ of dimensions $[100,90,80]$ from the point $(25, 35, 45)$ [by convention, the default origin is (0,0,0)].
+\begin{code}{0.8}
+\% \cropImage $I_{ref}$ $J_{ref}$ -origin 25 35 45 -dim 100 90 80 -res-trsf $C_{ref}$
+\end{code}
+The transformation $C_{ref}$ defines the "crop" operation as a transformation,
+i.e. $J_{ref} = I_{ref} \circ C_{ref}$, this the same "crop" can also be done by 
+\begin{code}{0.8}
+\% \applyTrsf $I_{ref}$ $J_{ref}$ -trsf $C_{ref}$ -dim 100 90 80 -voxel ...
+\end{code}
+according one specifies the correct voxel sizes. In other words, we have 
+$$ J_{ref} = I_{ref} \circ C_{ref}$$
+
+This allows to compute a registration transformation from subvolumes,
+and then to estimate the transformation for the whole volumes. 
+
+\begin{enumerate}
+
+\item The commands
+\begin{code}{0.8}
+\% \cropImage $I_{ref}$ $J_{ref}$ ... -res-trsf $C_{ref}$ \\
+\% \cropImage $I_{flo}$ $J_{flo}$ ... -res-trsf $C_{flo}$
+\end{code}
+generates the subvolumes $J_{ref} = I_{ref} \circ C_{ref}$ and $J_{flo} = I_{flo} \circ C_{flo}$ together with the crop transformations $C_{ref}$ and $C_{flo}$.
+
+\item The cropped images are co-registered, i.e. $J_{flo}$ can be registered onto $J_{ref}$ with 
+\begin{code}{0.8}
+\% \blockmatching -flo $J_{flo}$ -ref $J_{ref}$ -res $J_{res}$ -res-trsf ${T'}_{res}$ ...
+\end{code}
+
+\item The resampling of the cropped image $J_{flo}$ into $J_{res}$
+  with ${T'}_{res}$ can cause some zeroed areas appearing at the
+  $J_{res}$ image border. 
+Since we have 
+\begin{eqnarray*}
+J_{res} & = & J_{flo} \circ {T'}_{res} \\
+        & = & I_{flo} \circ C_{flo}  \circ {T'}_{res} 
+\end{eqnarray*}
+this effect can be reduced by resampling $I_{flo}$ into $J_{res}$ with
+the transformation $C_{flo}  \circ {T'}_{res}$
+
+\begin{code}{0.8}
+\% \composeTrsf -res $T''_{res}$ -trsfs $C_{flo}$  ${T'}_{res}$ \\
+\% \applyTrsf $I_{flo}$ $J_{res}$ -trsf $T''_{res}$ -template $J_{ref}$ 
+\end{code}
+
+\item Last, we also have
+\begin{eqnarray*}
+J_{res} = J_{flo} \circ {T'}_{res} & \sim & J_{ref} \\
+I_{flo} \circ C_{flo} \circ {T'}_{res} & \sim &  I_{ref} \circ C_{ref} \\
+I_{flo} \circ C_{flo} \circ {T'}_{res} \circ C^{-1}_{ref} & \sim & I_{ref}
+\end{eqnarray*}
+thus $T_{res} = C_{flo} \circ {T'}_{res} \circ C^{-1}_{ref}$ allows to
+resample $I_{flo}$ onto $I_{ref}$, with a transformation ${T'}_{res}$
+computed by the co-registration of the cropped images $J_{flo}$ and $J_{ref}$.
+
+\begin{code}{0.8}
+\% \invTrsf $C_{ref}$ $C^{-1}_{ref}$  \\
+\% \composeTrsf -res $T_{res}$ -trsfs $C_{flo}$  ${T'}_{res}$ $C^{-1}_{ref}$ \\
+\% \applyTrsf $I_{flo}$ $I_{res}$ -trsf $T_{res}$ -template $I_{ref}$ 
+\end{code}
+
+\end{enumerate}
+
+
+
+
+\section{\invTrsf}
+\label{sec:invTrsf}
+
+\invTrsf allows to invert transformations.  Attention should be paid for vector field transformations, since they are defined as vectorial images. When registering images with \blockmatching,
+\begin{code}{0.8}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ -res $I_{res}$ -res-trsf $T_{res}$ ...
+\end{code}
+ the geometry (image dimensions and voxel sizes) of the vector field is that of the reference image $I_{ref}$ (recall that $T_{res}$ allows to resample $I_{flo}$ into the geometry of $I_{ref}$ and can be denoted by $T_{I_{flo} \leftarrow I_{ref}}$, see section \ref{sec:applyTrsf}).
+
+Inverting $T_{res}$ into $T^{-1}_{res}$  will allows to resample $I_{ref}$ into the geometry of $I_{flo}$ and has then to be defined with  $I_{flo}$ geometry with  \option{-template-image}
+\begin{code}{0.8}
+\% \invTrsf  $T_{res}$  $T^{-1}_{res}$ -template-image $I_{flo}$ ...
+\end{code}
+Alternatively, the vector field geometry can be given with both \option{-template-dimension} and \option{-template-voxel}.
+
+Inverting the vector field transformations is done with an iterative procedure. Some options allows to tune related parameters.
+
+
+
+\section{\pointmatching}
+\label{sec:pointmatching}
+
+\pointmatching allows to compute a transformation from a list of paired points. It used the same computation methods, ie (weighted) least (trimmed) squares, and the same transformation classes than \blockmatching. Basically, it uses the same routine than \blockmatching (see section \ref{sec:blockmatching}) to compute the incremental transformation $\delta T$ from the block pairings.
+It may be useful to compute an initial transformation when the two images to be registered are too far apart.
+
+
+
+Assume that the files $P_{flo}$ and  $P_{ref}$ contain respectively the coordinates of points (i.e. each line is of the form '\texttt{x y z}', with one point per line, points being in real units) of respectively the floating and the reference images, $I_{flo}$ and $I_{ref}$, the $i^{\mathrm{th}}$ point (i.e. corresponding to the $i^{\mathrm{th}}$ line of the file) of  $P_{flo}$ being paired to the  $i^{\mathrm{th}}$ point of  $P_{ref}$. The command
+\begin{code}{0.8}
+\% \pointmatching -flo $P_{flo}$ -ref $P_{ref}$-res-trsf $T_{init}$
+\end{code}
+allows to compute the transformation $T_{init}$ that can be 
+either used to resample $I_{flo}$ onto $I_{ref}$ with
+\begin{code}{0.8}
+\% \applyTrsf $I_{flo}$ $I_{res'}$ -trsf $T_{init}$ -template $I_{ref}$ 
+\end{code}
+or that can be served as initialization for a subsequent registration
+\begin{code}{0.8}
+\% \blockmatching -flo $I_{flo}$ -ref $I_{ref}$ -init-trsf $T_{init}$ -res $I_{res}$ -res-trsf $T_{res}$ 
+\end{code}
+
+Note that the naming conventions (\textit{floating} and \textit{reference}) are coherent with those of \blockmatching so that the obtained transformation can be used directly to resample the floating image (there is no need to compose the result transformation $T_{res}$  with the initial one $T_{int}$), i.e. by the command
+\begin{code}{0.8}
+\% \applyTrsf $I_{flo}$ $I_{res}$ -trsf $T$ -template $I_{ref}$ 
+\end{code}
+
+\begin{attention} 
+When looking for transformations involving rigid transformations (i.e. rigid transformations or similitudes), it is mandatory to give point coordinates in real units (unless the voxel is isotropic). If points are known in voxel/pixel units, the voxel/pixel sizes may be specified either with the ad-hoc option or with a template image. It is assumed that the voxel/pixel sizes of both the reference $I_{ref}$ and the floating image $I_{flo}$ are the same.
+\end{attention}
+
+Transformation estimation options are the same than the ones of {\blockmatching} (refer to section \ref{sec:parameters:transformation:estimation} for generic options for transformation estimation, and section \ref{sec:parameters:vectorfield:estimation} for dedicated options for vector field estimation).
+
+\subsection{Vector field estimation}
+
+Vector field estimation within the context of \blockmatching is done with a dense field of pairings, while only a sparse field of pairings can be passed (through the the files $P_{flo}$ and  $P_{ref}$) to \pointmatching. 
+Basically, the (dense) vector field estimation is done by interpolating the (sparse) pairings with a gaussian kernel whose standard deviation id given by the \option{-fluid-sigma} option.
+
+When pairings are far apart (with respect to the standard deviation value), it (theoretically) comes to propagate the pairings except in medial areas where pairings will be interpolated. There are two possible drawbacks.
+\begin{enumerate}
+\item Small standard deviation values comes to deal with very small weight values (far away from the pairings), which may cause numerical instabilities.  
+\item Pairings are also propagated to the image borders, which may be an undesirable side effect.
+\end{enumerate}
+ 
+To address these drawback, the \option{-vector-propagation-distance} and \option{-vector-fading-distance} options may help to more finely build the desired vector field, which is computed as follows:
+\begin{enumerate}
+\item \option{-vector-propagation-distance \%d} propagates pairings at the distance given by the  option (if not null), if possible (up to the extension of the Vorono\"i diagram of the pairings).
+\item \option{-vector-fading-distance \%d} also propagates the pairings at the distance given by the option, but with a fading effect, ensuring than identity (null vector pairing) are built far away (i.e. the sum of the two above distances) from the pairings.
+\item The pairing field if then regularized by gaussian filtering (standard deviation given by the \option{-fluid-sigma} option).
+\end{enumerate}
+Note that fading propagation and regularization may be required to get a regular dense vector field from sparse pairings. Tuning these parameters depends on both the sparsity of the pairings and the lengths of the displacement. It is then advised to conduct several experiments, using images created by \createGrid for a convenient visualization of the produced vector fields (see section \ref{sec:example:pointmatching}).
+
+
+
+\section{\printImage}
+
+\section{\printTrsf}
+
+%\newpage
+%\chapter{Examples}
+
+%\section{}

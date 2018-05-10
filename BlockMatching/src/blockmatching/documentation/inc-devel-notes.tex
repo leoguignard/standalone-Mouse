@@ -1,0 +1,49 @@
+\chapter{\blockmatching versus \baladin}
+
+\section{Blocks management}
+
+There are two issues.
+
+\begin{itemize}
+
+\item The number of blocks calculated in the earlier versions of \baladin was erroneous (and may yield an overflow). 
+\item As a consequence, some blocks (that should have been considered) were discarded.
+\item the ordering of the blocks in the earlier versions of \baladin was $z$ varies first, then $y$ and finally $x$, so that the index of a block is given by $z + ( y + x * dim_y) * dim_z$. 
+
+\end{itemize}
+
+This behavior can be mimicked with the define \verb|_ORIGINAL_BALADIN_BLOCKS_MANAGEMENT_| in the latest version of \baladin (except for the overflow). 
+
+It seems that the indexing order is important (experiments have been conducted by changing the indexing, with the same blocks being discarded), since results may numerically differ. It can be suspected (but has not be proven) that it may change the "best" pairing, because of the scan order, when several blocks result in the same criteria value.
+
+
+
+\section{D\'efinition des blocs}
+
+La dimension d'une image est $D$ (les coordonn\'ees des points vont de $0$ \`a $D-1$), on ne veut pas de blocs dans les $\textit{offset}_p$ premiers points, ni dans les $\textit{offset}_d$ derniers points. La dimension d'un bloc est $B$ 
+et les blocs sont espac\'es de $S$. On a donc 
+\begin{itemize}
+\item coordonn\'ee du premier point inclus dans le bloc $i , i\geq 0$ : 
+$$x_0 = \textit{offset}_p + i * S$$ 
+Donc le point $x$ est le premier point (origine) d'un bloc si
+$$(x - \textit{offset}_p) \% S = 0$$ 
+(le reste de la division euclidienne est $0$), et l'indice du bloc est alors  
+$$(x - \textit{offset}_p) / S$$
+\item coordonn\'ee du dernier point inclus dans le bloc $i$ : 
+$$x_1 = \textit{offset}_p + i * S + (B-1)$$
+\end{itemize}
+Pour qu'un bloc soit valide, il faut donc 
+\begin{eqnarray*}
+\textit{offset}_p + i * S + (B-1) \leq D - 1 - \textit{offset}_d
+& \Longleftrightarrow &
+i * S \leq D - 1 - \textit{offset}_d -B +1 - \textit{offset}_p \\
+i * S \leq D-B - \textit{offset}_d - \textit{offset}_p
+\end{eqnarray*}
+Le dernier indice valide est donc 
+$$
+i_d = \left( D-B - \textit{offset}_d - \textit{offset}_p \right) / S
+$$
+Comme les indices commencent \`a $0$, il y a donc $i_d +1$ blocs avec
+$$
+i_d + 1 = \left( D-B - \textit{offset}_d - \textit{offset}_p \right) / S + 1
+$$

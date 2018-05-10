@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.janelia.simview</groupId>
+    <artifactId>klb</artifactId>
+    <version>0.3.4</version>
+    <packaging>jar</packaging>
+
+    <name>Keller Lab Block file type (.klb) - JNI Library</name>
+    <description>The KLB is a file format developed at the Keller Lab at Janelia Research Campus to efficiently store
+        and retrieve large 5D images (>4GB) using lossless compression. The format tries to combine the JPEG2000
+        lossless compression levels with the block flexibility offered by HDF5 to access arbitrary regions of interest.
+        Inspired by Parallel BZIP2, a common Linux command, we partition images into blocks and each block is compressed
+        in parallel using the Bzip2. Both reading and writing are parallelized and scale linearly with the number of
+        cores making it much faster than JPEG2000 and HDF5 in common multi-core machines.
+    </description>
+    <url>https://bitbucket.org/fernandoamat/keller-lab-block-filetype</url>
+
+    <parent>
+        <groupId>net.imagej</groupId>
+        <artifactId>pom-imagej</artifactId>
+        <version>15.6.0</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.scif</groupId>
+            <artifactId>scifio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>ImageJ.Releases</id>
+            <url>http://maven.imagej.net/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>ImageJ.Public</id>
+            <url>http://maven.imagej.net/content/repositories/public</url>
+        </repository>
+        <repository>
+            <id>ImageJ.3rdParty</id>
+            <url>http://maven.imagej.net/content/repositories/thirdparty</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>../</directory>
+                <includes>
+                    <include>LICENSE.txt</include>
+                    <include>README.md</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19</version>
+                <configuration>
+                    <argLine>-Xmx6G</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--<additionalparam>-Xdoclint:none</additionalparam>-->
+        <!--<enforcer.skip>true</enforcer.skip>-->
+    </properties>
+</project>

@@ -1,0 +1,30 @@
+############################################################
+#
+#
+# Copyright (c) INRIA 2013
+#
+# AUTHOR:
+# Etienne Delclaux (etienne.delclaux@inria.fr)
+# From Sylvain Prigent (sylvain.prigent@inria.fr)
+# 
+######################################################################
+## 
+### Commentary: 
+## 
+######################################################################
+## 
+### Change log:
+## 
+######################################################################
+
+set(vt_INCLUDE_DIRS "@vt_INCLUDE_DIRS@")
+set(vt_LIBRARY_DIRS "@vt_LIBRARY_DIRS@")
+set(vt_CMAKE_DIRS   "@vt_CMAKE_DIR@")
+
+set(vt_USE_FILE "@vt_USE_FILE@")
+
+set(LEMON_DIR "@LEMON_DIR@")
+set(NIFTI_DIR "@NIFTI_DIR@")
+set(LIBTIFF_DIR "@LIBTIFF_DIR@")
+
+

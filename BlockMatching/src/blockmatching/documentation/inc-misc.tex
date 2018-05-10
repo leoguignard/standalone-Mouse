@@ -1,0 +1,100 @@
+
+
+\chapter{Misc}
+
+\section{Calcul d'une transformation aux moindres carrées}
+
+\subsection{Rappels}
+\begin{eqnarray*}
+\sum_i \left( x_i - \bar{x} \right)^2 
+& = &
+\sum_i \left( x_i^2 - 2 x_i \bar{x} + \bar{x}^2 \right) \\
+& = &
+\sum_i x_i^2 - 2 \bar{x} \sum_i x_i + N \bar{x}^2 \\
+& = &
+\sum_i x_i^2 - 2 \bar{x} N \bar{x} + N \bar{x}^2 \\
+& = &
+\sum_i x_i^2 - N \bar{x}^2 
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\sum_i \left( x_i - \bar{x} \right) \left( x'_i - \bar{x}' \right) 
+& = &
+\sum_i x_i x'_i - \bar{x} \sum_i x'_i - \bar{x}' \sum_i x_i + N \bar{x} \bar{x}' \\
+& = &
+\sum_i x_i x'_i - \bar{x} N \bar{x}' - \bar{x}' N \bar{x} + N \bar{x} \bar{x}' \\
+& = &
+\sum_i x_i x'_i - N \bar{x} \bar{x}'
+\end{eqnarray*}
+
+\subsection{Translation + scaling}
+
+Le crit\`ere est de la forme
+$$
+\sum_i \left( a_x x_i + t_x - x'_i \right)^2 + \ldots
+$$
+
+La d\'eriv\'ee par rapport \`a $t_x$ donne
+\begin{eqnarray*}
+\sum_i \left( a_x x_i + t_x - x'_i \right) = 0
+& \Longleftrightarrow &
+a_x \sum_i x_i + N t_x - \sum_i x'_i = 0 \\
+& \Longleftrightarrow &
+t_x = \bar{x}' - a_x \bar{x} 
+\end{eqnarray*}
+
+La d\'eriv\'ee par rapport \`a $a_x$ donne
+\begin{eqnarray*}
+\sum_i x_i \left( a_x x_i + t_x - x'_i \right) = 0
+& \Longleftrightarrow &
+a_x \sum_i x_i^2 + t_x \sum_i x_i - \sum_i x_i x'_i = 0\\
+& \Longleftrightarrow &
+a_x \sum_i x_i^2 +
+N \bar{x} \left( \bar{x}' - a_x \bar{x} \right) - \sum_i x_i x'_i = 0\\
+& \Longleftrightarrow &
+a_x \left( \sum_i x_i^2 - N \bar{x}^2 \right)
++ N \bar{x} \bar{x}' - \sum_i x_i x'_i = 0 \\
+& \Longleftrightarrow &
+a_x \sum_i \left( x_i - \bar{x} \right)^2  
+ - \sum_i \left( x_i - \bar{x} \right)\left( x'_i - \bar{x}' \right) \\
+& \Longleftrightarrow &
+a_x = \frac{\sum_i \left( x_i - \bar{x} \right)\left( x'_i - \bar{x}' \right)}{\sum_i \left( x_i - \bar{x} \right)^2}
+\end{eqnarray*}
+
+
+
+
+\section{Notes}
+
+\begin{itemize}
+
+\item  la position du centre d'un bloc (cf CalculChampVecteur2D() et CalculChampVecteur3D()) est donn\'ee par 
+$x = a + param->bl\_dx / 2.0$ avec $a$ origine du bloc, et $param->bl\_dx$ taille du bloc. Etant donn\'e que $a$ est au centre du bloc, il aurait fallu faire 
+$x = a + (param->bl\_dx -1)/ 2.0$ !! [DONE]
+
+\item dans CalculChampVecteur3D(), la taille du voisinage est de -$param->bl\_size\_neigh\_x$ a $+param->bl\_size\_neigh\_x$, et on parcourt le voisinage a partir de $a - param->bl\_size\_neigh\_x$ et en avan\c{c}ant de $param->bl_next_neigh_x$, ce qui fait que l'on ne teste pas forc\'ement le point central (ex: size = 3 et step = 2). A corriger.
+
+\item Le calcul des r\'esidus devrait se faire par une distance de Mahalanobis. 
+\begin{itemize}
+\item Paires : $(M_i, M'_i)$
+\item Transformation estim\'ee : $T = \arg \min \sum_i \| T \circ M_i - M'_i \|^2$
+\item vecteurs r\'esidus : $\mathbf{r}_i = T \circ M_i - M'_i$
+\item moyenne des r\'esidus : 
+$\overline{\mathbf{r}} = \frac{1}{N} \sum_i \mathbf{r}_i$
+\item matrice de covariance des r\'esidus : 
+$C = \frac{1}{N} \sum_i (\mathbf{r}_i - \overline{\mathbf{r}}) (\mathbf{r}_i- \overline{\mathbf{r}})^T$
+\item la distance de Mahalanobis s'\'ecrit 
+$(\mathbf{r}_i- \overline{\mathbf{r}})^T C^{-1} (\mathbf{r}_i- \overline{\mathbf{r}})$
+
+\end{itemize}
+Maintenant, il faudrait calculer la distance par rapport \`a un r\'esidu nul...
+
+
+
+
+
+\item tools = outils, basic = allocation, initialisation, ...
+
+\item transformation\_type n'a pas \`a \^etre dans les param\`etres de recalage, juste dans les param\`etres locaux du 'main'
+
+\end{itemize}

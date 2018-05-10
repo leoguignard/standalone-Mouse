@@ -1,0 +1,11 @@
+
+extern void BOG_OPERATION_TYPE ( void* inputBuf, /* buffer to be resampled */
+				 void* resultBuf, /* result buffer */
+				 int *theDim, /* dimensions of this buffer */
+				 int connectivity, /* connectivity to be used */ 
+				 int iterations  /* number of iterations */ );
+
+
+
+
+

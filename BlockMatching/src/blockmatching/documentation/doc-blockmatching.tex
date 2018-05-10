@@ -1,0 +1,92 @@
+\documentclass[10pt]{report}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{makeidx}
+
+\setcounter{secnumdepth}{4}
+
+
+\newcommand{\ens}[4]{ {#1}_{\mathbb{#2}} \leftarrow {#3}_{\mathbb{#4}} }
+
+
+
+\def\applyTrsf{\texttt{applyTrsf}\index{applyTrsf@\texttt{applyTrsf}} } 
+\def\applyTrsfToPoints{\texttt{applyTrsfToPoints}\index{applyTrsfToPoints@\texttt{applyTrsfToPoints}} }
+\def\baladin{\texttt{baladin}\index{baladin@\texttt{baladin}} }
+\def\blockmatching{\texttt{blockmatching}\index{blockmatching@\texttt{blockmatching}} }
+\def\buildPyramidImage{\texttt{buildPyramidImage}\index{buildPyramidImage@\texttt{buildPyramidImage}} }
+\def\composeTrsf{\texttt{composeTrsf}\index{composeTrsf@\texttt{composeTrsf}} }
+\def\copyTrsf{\texttt{copyTrsf}\index{copyTrsf@\texttt{copyTrsf}} }
+\def\createGrid{\texttt{createGrid}\index{createGrid@\texttt{createGrid}} }
+\def\createTrsf{\texttt{createTrsf}\index{createTrsf@\texttt{createTrsf}} }
+\def\cropImage{\texttt{cropImage}\index{cropImage@\texttt{cropImage}} }
+\def\invTrsf{\texttt{invTrsf}\index{invTrsf@\texttt{invTrsf}} }
+\def\pointmatching{\texttt{pointmatching}\index{pointmatching@\texttt{pointmatching}} }
+\def\printImage{\texttt{printImage}\index{printImage@\texttt{printImage}} }
+\def\printTrsf{\texttt{printTrsf}\index{printTrsf@\texttt{printTrsf}} }
+
+\newenvironment{attention}{\begin{description}\item[{[\textsc{Pay attention}]}]}{\end{description}}
+%\newenvironment{attention}{\noindent \textsc{[Pay attention]}}{}
+% \def\attention{\textsc{[Pay attention]} }
+
+\newenvironment{note}{\begin{description}\item[{[\textsc{Note:}]}]}{\end{description}}
+% \newenvironment{note}{\noindent \textsc{[Note]}}{}
+% \def\note{\textsc{[note]} }
+
+
+\newcommand{\option}[1]{{\texttt{'#1'}}}
+
+\newenvironment{code}[1]{\mbox{}\\[1ex]\hspace*{-#1cm}\begin{minipage}{150mm}\begin{quote}\tt}{\end{quote}\end{minipage}\mbox{}\\[1ex]}
+
+%\newenvironment{code}[1]{\mbox{}\\[1ex]\begin{minipage}{150mm}\tt}{\end{minipage}\mbox{}\\[1ex]}
+
+
+\makeindex
+
+\begin{document}
+
+\title{\texttt{blockmatching} and associated tools, a very short documentation}
+\author{Gr\'egoire Malandain}
+\maketitle
+
+\tableofcontents
+
+
+
+\part{User documentation}
+
+\input{inc-user-commdline.tex} 
+
+\input{inc-user-apis.tex} 
+
+\part{Examples of use}
+
+\input{inc-use-examples}
+
+\part{Methodological notes}
+
+\input{inc-method-notes.tex}
+
+
+
+
+% \part{Developer documentation}
+
+% \input{inc-devel-doc.tex}
+
+% \part{Developer notes}
+
+% \input{inc-devel-notes.tex}
+
+% \part{Misc}
+
+% \input{inc-misc.tex}
+
+
+
+
+
+\printindex
+
+
+\end{document}

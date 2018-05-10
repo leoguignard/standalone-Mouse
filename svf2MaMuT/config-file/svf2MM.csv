@@ -1,0 +1,11 @@
+path_to_SVF,../../DATA/Average-Embryo/avg_SVF.bin,path to the SVF binary file
+path_to_DB,../../DATA/Average-Embryo/Database.csv,path to the database created by tissue_bw_prop.py
+path_output,../../Outputs/SVF2MaMuT/MaMuT_output.xml,path to the output
+tissue_ids,250,list of tissues that will be outputed in the MaMuT file
+tissue_names,Brachyury,mapping of the names of the tissues to the list of tissue ids from above
+filename,ZeroKLBSmall.xml,name of the big data viewer xml config file
+folder,,path to the folder containing the big data viewer xml config file
+begin,59,first time point to take into account
+end,323,last time point to take into account
+v_size,0.40625,voxel size in physical units (here in microns for example)
+dT,5,time resolution in physical units (here in minutes for example)
