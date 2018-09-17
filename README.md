@@ -1,6 +1,6 @@
 # Standalone version
 
-This folder contains the scripts described in our article [...]. The algorithms present here are the main python algorithms:
+This folder contains the scripts described in the article *In toto imaging and reconstruction of post-implantation mouse development at the single-cell level*. The algorithms present here are the main python algorithms:
   - Time-registration/standalone-registration.py that allows to stabilize in time 4D (3D + t) time series (probably the most complicated to install)
   - SVF/SVF-prop.py that build the Statistical Vector Flow from TGMM data
   - SVF/tissue-bw-prop.py that allows to propagate backward and forward masks from image data onto a corresponding SVF
