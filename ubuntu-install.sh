@@ -7,7 +7,7 @@
 # to be able to run the scripts
 
 sudo apt install git python-dev python-pip libhdf5-dev cmake-curses-gui
-pip install numpy scipy unittest2 matplotlib PyWavelets cython --user
+pip install numpy scipy unittest2 matplotlib PyWavelets cython scikit-image --user
 
 # git clone https://github.com/leoguignard/standalone-Mouse.git
 git clone https://github.com/bhoeckendorf/pyklb.git
