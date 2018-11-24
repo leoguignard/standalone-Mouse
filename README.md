@@ -35,7 +35,7 @@ To run the different scripts, it is necessary to pre-install the following libra
   - BlockMatching
 
 ## TGMMlibraries
-TGMMlibraries is a class that allows to manipulate lineage trees un python.
+TGMMlibraries is a class that allows to manipulate lineage trees in python.
 
 To install TGMMlibraries, from a terminal go into the folder TGMMlibraries and run the following command:
 ```shell
